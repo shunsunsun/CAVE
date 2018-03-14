@@ -359,7 +359,7 @@ class Plotter(object):
         label = self.scenario.run_obj
         ax.set_ylabel(label)
         ax.set_xlabel('time [sec]')
-        ax.step(time, mean, 'r-', label='{}{}'.format('validated ' if validated else '', label))
+        ax.step(time, mean, 'r-', label='{}{}'.format('validated ' if validated else 'estimated ', label))
         ax.fill_between(time, uncertainty_upper, uncertainty_lower, alpha=0.5,
                 label="standard deviation", step='pre')
         ax.set_xscale("log", nonposx='clip')
