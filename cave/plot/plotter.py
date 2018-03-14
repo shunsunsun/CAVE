@@ -310,12 +310,14 @@ class Plotter(object):
             validator: TODO description
         """
         self.logger.debug("Estimating costs over time for best run.")
+        validated = True
 
         if len(runs) > 1:
             means, times = [], []
             all_times = []
             for run in runs:
                 # Ignore variances as we plot variance over runs
+                validated = validated and run.validated
                 mean, _, time = self._get_mean_var_time(validator, run.traj, not run.validated, rh)
                 means.append(mean.flatten())
                 all_times.extend(time)
@@ -339,6 +341,7 @@ class Plotter(object):
                 var[time_idx][0] = np.nanvar(m)
             time = all_times
         else:  # no new statistics computation necessary
+            validated = runs[0].validated
             mean, var, time = self._get_mean_var_time(validator, runs[0].traj, not runs[0].validated, rh)
 
         mean = mean[:, 0]
@@ -353,9 +356,10 @@ class Plotter(object):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        ax.set_ylabel('performance')
+        label = self.scenario.run_obj
+        ax.set_ylabel(label)
         ax.set_xlabel('time [sec]')
-        ax.step(time, mean, 'r-', label="estimated performance")
+        ax.step(time, mean, 'r-', label='{}{}'.format('validated ' if validated else '', label))
         ax.fill_between(time, uncertainty_upper, uncertainty_lower, alpha=0.5,
                 label="standard deviation", step='pre')
         ax.set_xscale("log", nonposx='clip')
